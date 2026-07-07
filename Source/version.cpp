@@ -10,7 +10,7 @@
 
 bool HttpRequest(const char *url, std::string &response)
 {
-	if (HINTERNET internet = InternetOpenA("unknownluau/revsimfpsunlocker", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, NULL))
+	if (HINTERNET internet = InternetOpenA("PlutomasterAccount/revsimfpsunlocker/", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, NULL))
 	{
 		if (HINTERNET request = InternetOpenUrlA(internet, url, NULL, 0, INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE, NULL))
 		{
