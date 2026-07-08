@@ -83,16 +83,16 @@ size_t FindTaskSchedulerFrameDelayOffset(HANDLE process, const void *scheduler)
 {
 	const size_t search_offset = 0x100;
 
-	uint8_t buffer[0x100];
+	uint8_t buffer[0x250];
 	if (!ProcUtil::Read(process, (const uint8_t *)scheduler + search_offset, buffer, sizeof(buffer)))
 		return -1;
 
-	for (int i = 0; i < sizeof(buffer) - sizeof(double); i += 4)
+	for (int i = sizeof(buffer) - sizeof(double); i >= 0; i -= 4)
 	{
 		static const double frame_delay = 1.0 / 60.0;
 		double difference = *(double *)(buffer + i) - frame_delay;
 		difference = difference < 0 ? -difference : difference;
-		if (difference < std::numeric_limits<double>::epsilon()) return search_offset + i;
+		if (difference < 0.0001) return search_offset + i;
 	}
 
 	return -1;
@@ -161,9 +161,31 @@ const void *FindTaskScheduler(HANDLE process, const char **error = nullptr)
 				uint8_t buffer[0x100];
 				if (ProcUtil::Read(process, gts_fn, buffer, sizeof(buffer)))
 				{
-					if (auto inst = sigscan::scan("\xA1\x00\x00\x00\x00\x8B\x4D\xF4", "x????xxx", (uintptr_t)buffer, (uintptr_t)buffer + 0x100))
+					if (auto inst = sigscan::scan("\xA1\x00\x00\x00\x00\x8B\x4D\xF4", "x????xxx", (uintptr_t)buffer, (uintptr_t)buffer + sizeof(buffer)))
 					{
 						return (const void *)(*(uint32_t *)(inst + 1));
+					}
+
+					if (auto inst = sigscan::scan("\xA1\x00\x00\x00\x00\x5D\xC3", "x????xx", (uintptr_t)buffer, (uintptr_t)buffer + sizeof(buffer)))
+					{
+						return (const void *)(*(uint32_t *)(inst + 1));
+					}
+
+					if (auto inst = sigscan::scan("\xA1\x00\x00\x00\x00\xC3", "x????x", (uintptr_t)buffer, (uintptr_t)buffer + sizeof(buffer)))
+					{
+						return (const void *)(*(uint32_t *)(inst + 1));
+					}
+
+					for (int i = 0; i < sizeof(buffer) - 5; i++)
+					{
+						if (buffer[i] == 0xA1)
+						{
+							uint32_t addr = *(uint32_t *)(buffer + i + 1);
+							if (addr >= (uintptr_t)start && addr < (uintptr_t)end)
+							{
+								return (const void *)addr;
+							}
+						}
 					}
 				}
 			}
