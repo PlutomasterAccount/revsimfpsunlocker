@@ -1,3 +1,3 @@
-The virus by google is a false positive, VirusTotal link: https://www.virustotal.com/gui/file/434624eaf4a43d9404199b1577240544f16cf1aa643f4446fb0c6227b87582af/detection
+The virus detections are false positives. If you'd like to verify it yourself, the project is completely open source. You can also view the VirusTotal scan here:
 
-I should probably mention this is based off of https://github.com/resynthesise/caelusfpsunlocker , so credit where credit's due.
+https://www.virustotal.com/gui/file/5724da5c43f0adee902a97acd2b102d6fa60bb76266ed042f0fed358e2b27420/detection
